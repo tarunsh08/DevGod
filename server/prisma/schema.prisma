@@ -1,0 +1,93 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+
+
+model User {
+  id        String    @id @default(uuid())
+  name      String
+  email     String    @unique
+  passwordHash String
+  createdAt DateTime  @default(now())
+
+  // Relations
+  likes     Like[]
+  comments  Comment[]
+}
+
+model Developer {
+  id          String    @id @default(uuid())
+  name        String
+  email       String    @unique
+  passwordHash String
+  bio         String?
+  skills      String[]  // PostgreSQL text[]
+  socialLinks Json?
+  createdAt   DateTime  @default(now())
+
+  // Relations
+  projects    Project[]
+  likes       Like[]
+  comments    Comment[]
+}
+
+model Project {
+  id          String    @id @default(uuid())
+  developerId String
+  title       String
+  description String
+  useCase     String
+  howToUse    String
+  techStack   String[]  // PostgreSQL text[]
+  category    String
+  demoLink    String
+  repoLink    String
+  images      String[]  // PostgreSQL text[]
+  likesCount  Int       @default(0)
+  createdAt   DateTime  @default(now())
+
+  // Relations
+  developer   Developer @relation(fields: [developerId], references: [id])
+  likes       Like[]
+  comments    Comment[]
+}
+
+model Like {
+  id           String     @id @default(uuid())
+  projectId    String
+  userId       String?    // Nullable for developer likes
+  developerId  String?    // Nullable for user likes
+  createdAt    DateTime   @default(now())
+
+  // Relations
+  project      Project    @relation(fields: [projectId], references: [id])
+  user         User?      @relation(fields: [userId], references: [id])
+  developer    Developer? @relation(fields: [developerId], references: [id])
+}
+
+model Comment {
+  id           String     @id @default(uuid())
+  projectId    String
+  userId       String?    // Nullable for developer comments
+  developerId  String?    // Nullable for user comments
+  content      String
+  createdAt    DateTime   @default(now())
+
+  // Relations
+  project      Project    @relation(fields: [projectId], references: [id])
+  user         User?      @relation(fields: [userId], references: [id])
+  developer    Developer? @relation(fields: [developerId], references: [id])
+}
