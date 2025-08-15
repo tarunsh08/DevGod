@@ -1,5 +1,4 @@
 import 'dotenv/config'
-import express from 'express'
 import { ClerkExpressRequireAuth, ClerkExpressWithAuth } from '@clerk/clerk-sdk-node'
 
 // Require authentication for protected routes
@@ -24,38 +23,12 @@ export const getAuth = (req) => {
   return req.auth;
 };
 
-// Example protected route handler
-export const protectedRoute = (req, res, next) => {
-  try {
-    const { userId } = getAuth(req);
-    // You can add additional checks here if needed
-    next();
-  } catch (error) {
-    res.status(401).json({ error: 'Unauthorized' });
-  }
+// Helper to get Clerk user ID from request
+export const getClerkUserId = (req) => {
+  return req.auth?.userId || null;
 };
 
-export default requireAuth()
+// Export requireAuth as clerk for route middleware
+export const clerk = requireAuth;
 
-export const config = {
-  matcher: [
-    // Skip Next.js internals and all static files, unless found in search params
-    '/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)',
-    // Always run for API routes
-    '/(api|trpc)(.*)',
-  ],
-}
-
-const app = express()
-
-app.get('/protected', requireAuth(), async (req, res) => {
-  try {
-    const { userId } = getAuth(req)
-
-    const user = await requireAuth().clerkClient.users.getUser(userId)
-
-    return res.json({ user })
-  } catch (error) {
-    res.status(401).json({ error: 'Unauthorized' });
-  }
-})
+export default requireAuth;

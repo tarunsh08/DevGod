@@ -2,6 +2,7 @@
   "name": "server",
   "version": "1.0.0",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "dev": "npx nodemon",
     "start": "node index.js"
@@ -11,11 +12,13 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@clerk/clerk-sdk-node": "^4.13.23",
     "@clerk/express": "^1.7.17",
     "@prisma/client": "^6.13.0",
     "cors": "^2.8.5",
     "dotenv": "^17.2.1",
-    "express": "^5.1.0"
+    "express": "^5.1.0",
+    "svix": "^1.71.0"
   },
   "devDependencies": {
     "nodemon": "^3.1.10",
