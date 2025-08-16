@@ -27,19 +27,21 @@ export const listProjects = async (req, res) => {
         const take = Math.min(Number(limit) || 12, 100);
         const skip = (Math.max(Number(page) || 1, 1) -1) * take;
 
-        const [total, projects] = await Promise.all([
+        const [projects, total] = await Promise.all([
             prisma.project.findMany({
                 where,
                 orderBy: { createdAt: "desc" },
                 skip,
                 take,
                 include: {
-                    select: {
-                        id: true,
-                        name: true,
-                        bio: true,
-                        socialLinks: true
-                    },
+                    developer: {
+                        select: {
+                            id: true,
+                            name: true,
+                            bio: true,
+                            socialLinks: true
+                        }
+                    }
                 },
             }),
             prisma.project.count({ where }),

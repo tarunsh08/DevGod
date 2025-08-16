@@ -1,15 +1,16 @@
 import express from "express";
 import cors from "cors";
 import "dotenv/config";
-import { clerk } from "./middleware/clerkMiddleware.js";
 import projectsRouter from "./routes/projects.routes.js";
 
 const app = express();
 
 // middlewares
-app.use(cors());
+app.use(cors({
+  origin: true, 
+  credentials: true 
+}));
 app.use(express.json());
-app.use(clerk); // attach Clerk middleware (cookies/sessions). Note: clerk is already express middleware
 
 // health
 app.get("/", (_req, res) => res.json({ status: "API is running" }));

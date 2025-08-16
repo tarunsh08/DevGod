@@ -1,6 +1,6 @@
 "use client";
 import {
-  Navbar,
+  Navbar as NavbarWrapper,
   NavBody,
   NavItems,
   MobileNav,
@@ -11,10 +11,10 @@ import {
   MobileNavMenu,
 } from "@/components/ui/resizable-navbar";
 import { useState } from "react";
-import { UserButton, SignedIn, SignedOut } from "@clerk/nextjs";
+import { UserButton, SignInButton, SignUpButton, SignedIn, SignedOut } from "@clerk/nextjs";
 import { Home } from "./Home";
 
-export function NavbarDemo() {
+export function Navbar() {
   const navItems = [
     {
       name: "Features",
@@ -34,15 +34,21 @@ export function NavbarDemo() {
 
   return (
     <div className="relative w-full">
-      <Navbar>
+      <NavbarWrapper>
         {/* Desktop Navigation */}
         <NavBody>
           <NavbarLogo />
-          <NavItems items={navItems} />
+          <SignedIn>
+            <NavItems items={navItems} />
+          </SignedIn>
           <div className="flex items-center gap-4">
             <SignedOut>
-              <NavbarButton variant="secondary">Login</NavbarButton>
-              <NavbarButton variant="primary">Book a call</NavbarButton>
+              <SignInButton>
+                <NavbarButton variant="primary">Sign In</NavbarButton>
+              </SignInButton>
+              <SignUpButton>
+                <NavbarButton variant="primary">Sign Up</NavbarButton>
+              </SignUpButton>
             </SignedOut>
             <SignedIn>
               <div className="flex items-center">
@@ -66,32 +72,38 @@ export function NavbarDemo() {
             isOpen={isMobileMenuOpen}
             onClose={() => setIsMobileMenuOpen(false)}
           >
-            {navItems.map((item, idx) => (
-              <a
-                key={`mobile-link-${idx}`}
-                href={item.link}
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="relative text-neutral-600 dark:text-neutral-300"
-              >
-                <span className="block">{item.name}</span>
-              </a>
-            ))}
-            <div className="flex w-full flex-col gap-4">
+            <SignedIn>
+              {navItems.map((item, idx) => (
+                <a
+                  key={`mobile-link-${idx}`}
+                  href={item.link}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="relative text-neutral-600 dark:text-neutral-300"
+                >
+                  <span className="block">{item.name}</span>
+                </a>
+              ))}
+            </SignedIn>
+            <div className="flex w-full flex-col gap-4 mt-4">
               <SignedOut>
-                <NavbarButton
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  variant="primary"
-                  className="w-full"
-                >
-                  Login
-                </NavbarButton>
-                <NavbarButton
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  variant="primary"
-                  className="w-full"
-                >
-                  Book a call
-                </NavbarButton>
+                <SignInButton>
+                  <NavbarButton
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    variant="primary"
+                    className="w-full"
+                  >
+                    Sign In
+                  </NavbarButton>
+                </SignInButton>
+                <SignUpButton>
+                  <NavbarButton
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    variant="secondary"
+                    className="w-full"
+                  >
+                    Sign Up
+                  </NavbarButton>
+                </SignUpButton>
               </SignedOut>
               <SignedIn>
                 <div className="flex justify-center py-2">
@@ -101,14 +113,12 @@ export function NavbarDemo() {
             </div>
           </MobileNavMenu>
         </MobileNav>
-      </Navbar>
+      </NavbarWrapper>
       <DummyContent />
     </div>
   );
 }
 
 const DummyContent = () => {
-  return (
-    <Home />
-  );
+  return <Home />;
 };

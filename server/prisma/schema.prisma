@@ -15,33 +15,38 @@ datasource db {
 }
 
 
-
 model User {
-  id        String    @id @default(uuid())
-  name      String
-  email     String    @unique
-  passwordHash String
-  createdAt DateTime  @default(now())
+  id         String    @id @default(uuid())
+  clerkId    String    @unique            // maps to Clerk userId
+  name       String
+  email      String?   @unique            // optional; Clerk is source of truth
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
 
   // Relations
-  likes     Like[]
-  comments  Comment[]
+  likes      Like[]
+  comments   Comment[]
+
+  @@index([clerkId])
 }
 
 model Developer {
   id          String    @id @default(uuid())
+  clerkId     String    @unique           // maps to Clerk userId
   name        String
-  email       String    @unique
-  passwordHash String
+  email       String?   @unique
   bio         String?
-  skills      String[]  // PostgreSQL text[]
+  skills      String[]                      // text[]
   socialLinks Json?
   createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
   // Relations
   projects    Project[]
   likes       Like[]
   comments    Comment[]
+
+  @@index([clerkId])
 }
 
 model Project {
@@ -51,43 +56,60 @@ model Project {
   description String
   useCase     String
   howToUse    String
-  techStack   String[]  // PostgreSQL text[]
+  techStack   String[]                      // text[]
   category    String
   demoLink    String
   repoLink    String
-  images      String[]  // PostgreSQL text[]
+  images      String[]                      // text[]
   likesCount  Int       @default(0)
   createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
   // Relations
-  developer   Developer @relation(fields: [developerId], references: [id])
+  developer   Developer @relation(fields: [developerId], references: [id], onDelete: Cascade)
   likes       Like[]
   comments    Comment[]
+
+  @@index([developerId])
+  @@index([createdAt])
 }
 
 model Like {
   id           String     @id @default(uuid())
   projectId    String
-  userId       String?    // Nullable for developer likes
-  developerId  String?    // Nullable for user likes
+  userId       String?                         // either userId or developerId set
+  developerId  String?
   createdAt    DateTime   @default(now())
 
   // Relations
-  project      Project    @relation(fields: [projectId], references: [id])
-  user         User?      @relation(fields: [userId], references: [id])
-  developer    Developer? @relation(fields: [developerId], references: [id])
+  project      Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user         User?      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  developer    Developer? @relation(fields: [developerId], references: [id], onDelete: Cascade)
+
+  // Prevent duplicate likes by the same actor on the same project
+  @@unique([projectId, userId])
+  @@unique([projectId, developerId])
+
+  @@index([projectId])
+  @@index([userId])
+  @@index([developerId])
 }
 
 model Comment {
   id           String     @id @default(uuid())
   projectId    String
-  userId       String?    // Nullable for developer comments
-  developerId  String?    // Nullable for user comments
+  userId       String?                         // either userId or developerId set
+  developerId  String?
   content      String
   createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
 
   // Relations
-  project      Project    @relation(fields: [projectId], references: [id])
-  user         User?      @relation(fields: [userId], references: [id])
-  developer    Developer? @relation(fields: [developerId], references: [id])
+  project      Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user         User?      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  developer    Developer? @relation(fields: [developerId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+  @@index([userId])
+  @@index([developerId])
 }

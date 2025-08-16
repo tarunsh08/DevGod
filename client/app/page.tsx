@@ -1,7 +1,7 @@
 'use client';
 
 import { Welcome } from "./screens/Welcome";
-import { NavbarDemo } from "@/components/Navbar";
+import { Home } from "@/components/Home";
 import { SignedIn, SignedOut } from "@clerk/nextjs";
 
 export default function Page() {
@@ -11,7 +11,7 @@ export default function Page() {
         <Welcome />
       </SignedOut>
       <SignedIn>
-        <NavbarDemo />
+        <Home />
       </SignedIn>
     </>
   );

@@ -1,13 +1,14 @@
 'use client';
 
 import React from 'react';
-import { useUser } from "@clerk/nextjs";
+import { SignedIn, useUser } from "@clerk/nextjs";
 import { BackgroundBeamsWithCollision } from './ui/background-beams-with-collision';
 
 export function Home() {
   const { user } = useUser();
 
   return (
+    <SignedIn>
     <BackgroundBeamsWithCollision>
       <h2 className="text-2xl relative z-20 md:text-4xl lg:text-7xl font-bold text-center text-white font-sans tracking-tight">
         ShowCase for Developers{" "}
@@ -21,5 +22,6 @@ export function Home() {
         </div>
       </h2>
     </BackgroundBeamsWithCollision>
+    </SignedIn>
   );
 }
