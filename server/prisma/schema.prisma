@@ -11,11 +11,12 @@ datasource db {
 model User {
   id           String    @id @default(uuid())
   name         String
+  username     String?   @unique
   email        String?   @unique
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @default(now()) @updatedAt
   role         String    @default("user")
-  passwordHash String?
+  password     String?
   comments     Comment[]
   likes        Like[]
 }
@@ -27,7 +28,7 @@ model Developer {
   bio          String?
   skills       String[]
   socialLinks  Json?
-  passwordHash String?   // Added for local authentication
+  password     String?   // Added for local authentication
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @default(now()) @updatedAt
   comments     Comment[]

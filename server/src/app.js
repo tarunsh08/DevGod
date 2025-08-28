@@ -12,10 +12,14 @@ app.use(express.urlencoded({ extended: true }));
 app.use(morgan("dev"));
 app.use(cors());
 
+import authRoutes from "./modules/auth/auth.route.js";
+
 // routes
 app.get("/", (req, res) => {
   res.json(new ApiResponse(200, "Welcome to the API", {}));
 });
+
+app.use("/api/v1/auth", authRoutes);
 
 app.use("*name", errorHandler);
 
