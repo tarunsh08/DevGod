@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
   output   = "../generated/prisma"
@@ -14,39 +8,31 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-
 model User {
-  id         String    @id @default(uuid())
-  clerkId    String    @unique            // maps to Clerk userId
-  name       String
-  email      String?   @unique            // optional; Clerk is source of truth
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
-
-  // Relations
-  likes      Like[]
-  comments   Comment[]
-
-  @@index([clerkId])
+  id           String    @id @default(uuid())
+  name         String
+  email        String?   @unique
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @default(now()) @updatedAt
+  role         String    @default("user")
+  passwordHash String?
+  comments     Comment[]
+  likes        Like[]
 }
 
 model Developer {
-  id          String    @id @default(uuid())
-  clerkId     String    @unique           // maps to Clerk userId
-  name        String
-  email       String?   @unique
-  bio         String?
-  skills      String[]                      // text[]
-  socialLinks Json?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-
-  // Relations
-  projects    Project[]
-  likes       Like[]
-  comments    Comment[]
-
-  @@index([clerkId])
+  id           String    @id @default(uuid())
+  name         String
+  email        String?   @unique
+  bio          String?
+  skills       String[]
+  socialLinks  Json?
+  passwordHash String?   // Added for local authentication
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @default(now()) @updatedAt
+  comments     Comment[]
+  likes        Like[]
+  projects     Project[]
 }
 
 model Project {
@@ -56,58 +42,50 @@ model Project {
   description String
   useCase     String
   howToUse    String
-  techStack   String[]                      // text[]
+  techStack   String[]
   category    String
   demoLink    String
   repoLink    String
-  images      String[]                      // text[]
+  images      String[]
   likesCount  Int       @default(0)
   createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-
-  // Relations
-  developer   Developer @relation(fields: [developerId], references: [id], onDelete: Cascade)
-  likes       Like[]
+  updatedAt   DateTime  @default(now()) @updatedAt
   comments    Comment[]
+  likes       Like[]
+  developer   Developer @relation(fields: [developerId], references: [id], onDelete: Cascade)
 
   @@index([developerId])
   @@index([createdAt])
 }
 
 model Like {
-  id           String     @id @default(uuid())
-  projectId    String
-  userId       String?                         // either userId or developerId set
-  developerId  String?
-  createdAt    DateTime   @default(now())
+  id          String     @id @default(uuid())
+  projectId   String
+  userId      String?
+  developerId String?
+  createdAt   DateTime   @default(now())
+  developer   Developer? @relation(fields: [developerId], references: [id], onDelete: Cascade)
+  project     Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user        User?      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  // Relations
-  project      Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  user         User?      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  developer    Developer? @relation(fields: [developerId], references: [id], onDelete: Cascade)
-
-  // Prevent duplicate likes by the same actor on the same project
   @@unique([projectId, userId])
   @@unique([projectId, developerId])
-
   @@index([projectId])
   @@index([userId])
   @@index([developerId])
 }
 
 model Comment {
-  id           String     @id @default(uuid())
-  projectId    String
-  userId       String?                         // either userId or developerId set
-  developerId  String?
-  content      String
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
-
-  // Relations
-  project      Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  user         User?      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  developer    Developer? @relation(fields: [developerId], references: [id], onDelete: Cascade)
+  id          String     @id @default(uuid())
+  projectId   String
+  userId      String?
+  developerId String?
+  content     String
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @default(now()) @updatedAt
+  developer   Developer? @relation(fields: [developerId], references: [id], onDelete: Cascade)
+  project     Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user        User?      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([projectId])
   @@index([userId])

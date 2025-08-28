@@ -11,50 +11,65 @@ import {
   MobileNavMenu,
 } from "@/components/ui/resizable-navbar";
 import { useState } from "react";
-import { UserButton, SignInButton, SignUpButton, SignedIn, SignedOut } from "@clerk/nextjs";
-import { Home } from "./Home";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/contexts/AuthContext";
 
 export function Navbar() {
+  const router = useRouter();
+  const { isAuthenticated, user, logout } = useAuth();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
   const navItems = [
     {
       name: "Features",
-      link: "#features",
+      link: "/features",
     },
     {
       name: "Pricing",
-      link: "#pricing",
+      link: "/pricing",
     },
     {
-      name: "Contact",
-      link: "#contact",
+      name: "Dashboard",
+      link: "/dashboard",
     },
   ];
 
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const handleAuthAction = () => {
+    if (isAuthenticated) {
+      logout();
+    } else {
+      router.push("/login");
+      setIsMobileMenuOpen(false);
+    }
+  };
 
   return (
-    <div className="relative w-full">
+    <div className="sticky top-0 z-20 w-full">
       <NavbarWrapper>
         {/* Desktop Navigation */}
         <NavBody>
           <NavbarLogo />
-          <SignedIn>
-            <NavItems items={navItems} />
-          </SignedIn>
+          <NavItems items={navItems} />
           <div className="flex items-center gap-4">
-            <SignedOut>
-              <SignInButton>
-                <NavbarButton variant="primary">Sign In</NavbarButton>
-              </SignInButton>
-              <SignUpButton>
-                <NavbarButton variant="primary">Sign Up</NavbarButton>
-              </SignUpButton>
-            </SignedOut>
-            <SignedIn>
-              <div className="flex items-center">
-                <UserButton afterSignOutUrl="/" />
-              </div>
-            </SignedIn>
+            {isAuthenticated && user && (
+              <span className="text-sm font-medium text-neutral-700">
+                Welcome, {user.name}
+              </span>
+            )}
+            <NavbarButton 
+              variant={isAuthenticated ? "destructive" : "secondary"} 
+              onClick={handleAuthAction}
+            >
+              {isAuthenticated ? 'Logout' : 'Login'}
+            </NavbarButton>
+            {!isAuthenticated && (
+              <NavbarButton 
+                variant="primary" 
+                onClick={() => router.push("/register")}
+              >
+                Sign Up
+              </NavbarButton>
+            )}
           </div>
         </NavBody>
 
@@ -72,53 +87,45 @@ export function Navbar() {
             isOpen={isMobileMenuOpen}
             onClose={() => setIsMobileMenuOpen(false)}
           >
-            <SignedIn>
-              {navItems.map((item, idx) => (
-                <a
-                  key={`mobile-link-${idx}`}
-                  href={item.link}
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="relative text-neutral-600 dark:text-neutral-300"
+            {navItems.map((item, idx) => (
+              <a
+                key={`mobile-link-${idx}`}
+                href={item.link}
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="relative text-neutral-600 dark:text-neutral-300"
+              >
+                <span className="block">{item.name}</span>
+              </a>
+            ))}
+            {isAuthenticated && user && (
+              <div className="px-4 py-2 text-sm text-neutral-600">
+                Welcome, {user.name}
+              </div>
+            )}
+            <div className="flex w-full flex-col gap-4">
+              <NavbarButton
+                onClick={handleAuthAction}
+                variant={isAuthenticated ? "destructive" : "primary"}
+                className="w-full"
+              >
+                {isAuthenticated ? 'Logout' : 'Login'}
+              </NavbarButton>
+              {!isAuthenticated && (
+                <NavbarButton
+                  onClick={() => {
+                    router.push("/register");
+                    setIsMobileMenuOpen(false);
+                  }}
+                  variant="outline"
+                  className="w-full"
                 >
-                  <span className="block">{item.name}</span>
-                </a>
-              ))}
-            </SignedIn>
-            <div className="flex w-full flex-col gap-4 mt-4">
-              <SignedOut>
-                <SignInButton>
-                  <NavbarButton
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    variant="primary"
-                    className="w-full"
-                  >
-                    Sign In
-                  </NavbarButton>
-                </SignInButton>
-                <SignUpButton>
-                  <NavbarButton
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    variant="secondary"
-                    className="w-full"
-                  >
-                    Sign Up
-                  </NavbarButton>
-                </SignUpButton>
-              </SignedOut>
-              <SignedIn>
-                <div className="flex justify-center py-2">
-                  <UserButton afterSignOutUrl="/" />
-                </div>
-              </SignedIn>
+                  Sign Up
+                </NavbarButton>
+              )}
             </div>
           </MobileNavMenu>
         </MobileNav>
       </NavbarWrapper>
-      <DummyContent />
     </div>
   );
 }
-
-const DummyContent = () => {
-  return <Home />;
-};

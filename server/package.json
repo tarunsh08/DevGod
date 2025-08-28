@@ -5,19 +5,22 @@
   "type": "module",
   "scripts": {
     "dev": "npx nodemon",
-    "start": "node server.js"
+    "start": "node server.js",
+    "prisma:generate": "npx prisma generate",
+    "prisma:migrate": "npx prisma migrate dev --name init",
+    "prisma:studio": "npx prisma studio"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "@clerk/clerk-sdk-node": "^4.13.23",
-    "@clerk/express": "^1.7.17",
     "@prisma/client": "^6.13.0",
+    "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
     "dotenv": "^17.2.1",
     "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
     "svix": "^1.71.0"
   },
   "devDependencies": {
