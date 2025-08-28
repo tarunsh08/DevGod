@@ -1,5 +1,45 @@
-node_modules
-# Keep environment variables out of version control
-.env
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+package-lock.json
+yarn.lock
+.pnpm-debug.log
 
-/generated/prisma
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Logs
+logs
+*.log
+*.log.*
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Prisma
+# Prisma generates the client in node_modules/@prisma/client
+# So nothing special to ignore EXCEPT if you generate into /prisma/generated
+prisma/generated/
+generated/prisma
+
+# Optional: ignore Prisma Studio settings
+.prisma/
+
+# OS-specific
+.DS_Store
+Thumbs.db
+
+# IDE / Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Build / Dist
+dist/
+build/

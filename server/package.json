@@ -1,11 +1,11 @@
 {
   "name": "server",
   "version": "1.0.0",
-  "main": "server.js",
+  "main": "src/server.js",
   "type": "module",
   "scripts": {
-    "dev": "npx nodemon",
-    "start": "node server.js",
+    "dev": "npx nodemon src/server.js",
+    "start": "node src/server.js",
     "prisma:generate": "npx prisma generate",
     "prisma:migrate": "npx prisma migrate dev --name init",
     "prisma:studio": "npx prisma studio"
@@ -15,16 +15,18 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "@prisma/client": "^6.13.0",
+    "@prisma/client": "^6.15.0",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
     "dotenv": "^17.2.1",
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
-    "svix": "^1.71.0"
+    "morgan": "^1.10.1",
+    "svix": "^1.71.0",
+    "winston": "^3.17.0"
   },
   "devDependencies": {
     "nodemon": "^3.1.10",
-    "prisma": "^6.13.0"
+    "prisma": "^6.15.0"
   }
 }
