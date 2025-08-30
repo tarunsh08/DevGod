@@ -20,26 +20,28 @@ const LoginPage = () => {
     setIsLoading(true);
 
     try {
-      const response = await axios.post(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/auth/login`, { 
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/auth/login`, { 
         email, 
         password 
+      }, {
+        withCredentials: true
       });
+
+      console.log("Login response:", response.data);
       
-      if (response.data.token && response.data.user) {
-        const { token, user } = response.data;
-        // Call login with token and user data
-        login(token, {
+      if (response.data.data?.user) {
+        const { user } = response.data.data;
+        await login({
           name: user.name,
           email: user.email,
           role: user.role
         });
-        // Store the token in localStorage
-        localStorage.setItem('authToken', token);
-        // Redirect to dashboard
-        router.push("/dashboard");
+        // router.push("/dashboard");
+      }else{
+        throw new Error(response.data.message || 'Login failed. Please try again.');
       }
     } catch (error: any) {
-      setError(error.response?.data?.message || 'Login failed. Please try again.');
+      setError(error.response?.data?.message || 'Login failed. Please try again.' || error.message);
       console.error('Login error:', error);
     } finally {
       setIsLoading(false);

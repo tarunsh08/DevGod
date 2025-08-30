@@ -31,9 +31,25 @@ export const registerUser = asyncHandler(async (req, res) => {
         }
         const { accessToken, refreshToken } = generateAuthTokens(user);
 
+        res.cookie("accessToken", accessToken,
+            {
+                httpOnly: true, sameSite: "strict",
+                maxAge: 15 * 60 * 1000,
+                secure: process.env.NODE_ENV
+            }
+        );
+        res.cookie("refreshToken", refreshToken,
+            {
+                httpOnly: true,
+                sameSite: "strict",
+                maxAge: 7 * 24 * 60 * 60 * 1000,
+                secure: process.env.NODE_ENV
+            }
+        );
+
 
         return res.status(201).json(ApiResponse.success(
-            { user, accessToken, refreshToken }, 
+            { user: { email: user.email, name: user.name, role: user.role } }, 
             "User registered successfully",
             201
         ));

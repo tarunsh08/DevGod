@@ -15,7 +15,7 @@ const page = () => {
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      const response = await axios.post(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/auth/register`, { email, password, name });
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/auth/register`, { email, password, name });
       console.log(response.data);
       router.push("/dashboard");
     } catch (error) {

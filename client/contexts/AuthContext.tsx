@@ -13,7 +13,7 @@ type User = {
 type AuthContextType = {
   isAuthenticated: boolean;
   user: User | null;
-  login: (token: string, userData: Omit<User, 'id'>) => void;
+  login: (userData: Omit<User, 'id'>) => void;
   logout: () => void;
 };
 
@@ -24,39 +24,56 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const router = useRouter();
 
-  // Check if user is authenticated on initial load
   useEffect(() => {
-    const token = localStorage.getItem('authToken');
-    const userData = localStorage.getItem('userData');
-    
-    if (token && userData) {
+    const checkAuth = async () => {
       try {
-        const parsedUser = JSON.parse(userData);
-        setUser(parsedUser);
-        setIsAuthenticated(true);
+        const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/auth/me`, {
+          credentials: 'include',
+        });
+        
+        if (response.ok) {
+          const userData = await response.json();
+          setUser(userData.data.user);
+          setIsAuthenticated(true);
+        } else {
+          setUser(null);
+          setIsAuthenticated(false);
+        }
       } catch (error) {
-        console.error('Failed to parse user data', error);
-        localStorage.removeItem('authToken');
-        localStorage.removeItem('userData');
+        console.error('Auth check failed', error);
+        setUser(null);
+        setIsAuthenticated(false);
       }
-    }
+    };
+
+    checkAuth();
   }, []);
 
-  const login = useCallback((token: string, userData: Omit<User, 'id'>) => {
-    localStorage.setItem('authToken', token);
-    // Store user data without sensitive information
-    localStorage.setItem('userData', JSON.stringify(userData));
-    setUser({ id: 'temp-id', ...userData });
-    setIsAuthenticated(true);
-    router.push('/dashboard');
+  const login = useCallback(async (userData: Omit<User, 'id'>) => {
+    try {
+      setUser({ id: 'temp-id', ...userData });
+      setIsAuthenticated(true);
+      await router.push('/dashboard');
+      router.refresh();
+    } catch (error) {
+      console.error('Login failed', error);
+      throw error;
+    }
   }, [router]);
 
-  const logout = useCallback(() => {
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('userData');
-    setUser(null);
-    setIsAuthenticated(false);
-    router.push('/login');
+  const logout = useCallback(async () => {
+    try {
+      await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/auth/logout`, {
+        method: 'POST',
+        credentials: 'include',
+      });
+    } catch (error) {
+      console.error('Logout failed', error);
+    } finally {
+      setUser(null);
+      setIsAuthenticated(false);
+      router.push('/');
+    }
   }, [router]);
 
   return (
