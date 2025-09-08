@@ -9,86 +9,68 @@ datasource db {
 }
 
 model User {
-  id           String    @id @default(uuid())
-  name         String
-  username     String?   @unique
-  email        String?   @unique
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @default(now()) @updatedAt
-  role         String    @default("user")
-  password     String?
-  comments     Comment[]
-  likes        Like[]
+  id        String    @id @default(uuid())
+  name      String
+  username  String?   @unique
+  email     String?   @unique
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now()) @updatedAt
+  role      String    @default("user")
+  password  String?
+  bio       String?   // Added bio for user profile
+  skills    String[]  // Added skills for user
+  socialLinks Json?   // Added social links
+  comments  Comment[]
+  likes     Like[]
+  posts     Post[]    // Added posts relation
 }
 
-model Developer {
-  id           String    @id @default(uuid())
-  name         String
-  email        String?   @unique
-  bio          String?
-  skills       String[]
-  socialLinks  Json?
-  password     String?   // Added for local authentication
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @default(now()) @updatedAt
-  comments     Comment[]
-  likes        Like[]
-  projects     Project[]
-}
-
-model Project {
+model Post {
   id          String    @id @default(uuid())
-  developerId String
+  userId      String
   title       String
   description String
   useCase     String
   howToUse    String
   techStack   String[]
   category    String
-  demoLink    String
-  repoLink    String
+  demoLink    String?
+  repoLink    String?
   images      String[]
   likesCount  Int       @default(0)
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @default(now()) @updatedAt
   comments    Comment[]
   likes       Like[]
-  developer   Developer @relation(fields: [developerId], references: [id], onDelete: Cascade)
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@index([developerId])
+  @@index([userId])
   @@index([createdAt])
 }
 
 model Like {
   id          String     @id @default(uuid())
-  projectId   String
+  postId      String
   userId      String?
-  developerId String?
   createdAt   DateTime   @default(now())
-  developer   Developer? @relation(fields: [developerId], references: [id], onDelete: Cascade)
-  project     Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  post        Post       @relation(fields: [postId], references: [id], onDelete: Cascade)
   user        User?      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([projectId, userId])
-  @@unique([projectId, developerId])
-  @@index([projectId])
+  @@unique([postId, userId])
+  @@index([postId])
   @@index([userId])
-  @@index([developerId])
 }
 
 model Comment {
   id          String     @id @default(uuid())
-  projectId   String
+  postId      String
   userId      String?
-  developerId String?
   content     String
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @default(now()) @updatedAt
-  developer   Developer? @relation(fields: [developerId], references: [id], onDelete: Cascade)
-  project     Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
   user        User?      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post        Post       @relation(fields: [postId], references: [id], onDelete: Cascade)
 
-  @@index([projectId])
+  @@index([postId])
   @@index([userId])
-  @@index([developerId])
 }

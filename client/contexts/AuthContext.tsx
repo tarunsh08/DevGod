@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import useAxios from '@/hooks/useAxios';
 
 type User = {
   id: string;
@@ -13,7 +14,7 @@ type User = {
 type AuthContextType = {
   isAuthenticated: boolean;
   user: User | null;
-  login: (userData: Omit<User, 'id'>) => void;
+  login: (userData: Omit<User, 'id'>, token: string) => void;
   logout: () => void;
 };
 
@@ -23,17 +24,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const router = useRouter();
+  const axios = useAxios();
 
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/auth/me`, {
-          credentials: 'include',
+        const response = await axios.get(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/auth/me`, {
+          withCredentials: true,
         });
         
-        if (response.ok) {
-          const userData = await response.json();
-          setUser(userData.data.user);
+        if (response.status === 200) {
+          const userData = response.data.data.user;
+          setUser(userData);
           setIsAuthenticated(true);
         } else {
           setUser(null);
@@ -49,23 +51,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     checkAuth();
   }, []);
 
-  const login = useCallback(async (userData: Omit<User, 'id'>) => {
-    try {
-      setUser({ id: 'temp-id', ...userData });
-      setIsAuthenticated(true);
-      await router.push('/dashboard');
-      router.refresh();
-    } catch (error) {
-      console.error('Login failed', error);
-      throw error;
-    }
+  const login = useCallback((userData: Omit<User, 'id'>, token: string) => {
+    localStorage.setItem('token', token);
+    setUser(userData as User);
+    setIsAuthenticated(true);
+    router.push('/dashboard');
   }, [router]);
 
-  const logout = useCallback(async () => {
+  const logout = useCallback(() => {
+    localStorage.removeItem('token');
     try {
-      await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/auth/logout`, {
-        method: 'POST',
-        credentials: 'include',
+      axios.post(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/v1/auth/logout`, {}, {
+        withCredentials: true,
       });
     } catch (error) {
       console.error('Logout failed', error);

@@ -3,11 +3,12 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation'
 import React, { FormEvent, useState } from 'react'
-import axios from "axios"
+import useAxios from "@/hooks/useAxios"
 import { useAuth } from '@/contexts/AuthContext';
 
 const LoginPage = () => {
   const router = useRouter();
+  const axios = useAxios();
   const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");

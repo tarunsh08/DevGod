@@ -16,6 +16,7 @@ app.use(cors(corsOptions));
 app.use(cookieParser());
 
 import authRoutes from "./modules/auth/auth.route.js";
+import postRoutes from "./modules/post/post.route.js";
 
 // routes
 app.get("/", (req, res) => {
@@ -23,6 +24,7 @@ app.get("/", (req, res) => {
 });
 
 app.use("/api/v1/auth", authRoutes);
+app.use("/api/v1/posts", postRoutes);
 
 app.use("*name", errorHandler);
 

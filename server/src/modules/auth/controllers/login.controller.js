@@ -15,7 +15,7 @@ export const loginUser = asyncHandler(async (req, res) => {
     const result = schema.safeParse(req.body);
 
     if (!result.success) {
-        throw new ApiError(400, result.error.errors[0].message);
+        throw new ApiError(400, result.error?.errors?.[0]?.message || 'Invalid input');
     }
 
     const { email, password } = result.data;
