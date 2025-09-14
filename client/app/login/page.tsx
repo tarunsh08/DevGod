@@ -8,8 +8,8 @@ import { useAuth } from '@/contexts/AuthContext';
 
 const LoginPage = () => {
   const router = useRouter();
-  const axios = useAxios();
   const { login } = useAuth();
+  const axios = useAxios();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -35,10 +35,11 @@ const LoginPage = () => {
         await login({
           name: user.name,
           email: user.email,
-          role: user.role
+          role: user.role,
+          id: user.id
         });
-        // router.push("/dashboard");
-      }else{
+        router.push("/dashboard");
+      } else {
         throw new Error(response.data.message || 'Login failed. Please try again.');
       }
     } catch (error: any) {

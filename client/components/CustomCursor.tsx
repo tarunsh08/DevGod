@@ -33,7 +33,7 @@ export default function CustomCursor() {
   }, []);
 
   return (
-    <div className="fixed pointer-events-none z-50 mix-blend-difference" 
+    <div className="fixed pointer-events-none z-90 mix-blend-difference" 
          style={{
            left: `${position.x}px`,
            top: `${position.y}px`,
