@@ -6,6 +6,7 @@ import useAxios from '@/hooks/useAxios'
 import { useAuth } from '@/contexts/AuthContext';
 import { Heart, MessageCircle, ChevronLeft, ChevronRight, CirclePlus, X, Image, Globe, Github, Tag, FileText } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import LikeButton from '@/features/LikePost';
 
 const Page = () => {
   const axios = useAxios();
@@ -232,10 +233,9 @@ const Page = () => {
 
                     {/* Action Buttons */}
                     <div className="flex items-center gap-4 pt-4 border-t border-neutral-200">
-                      <button className="flex items-center gap-2 text-neutral-600 hover:text-emerald-600 transition-colors duration-200">
-                        <Heart size={20} />
-                        <span>{post.likesCount || 0}</span>
-                      </button>
+                      <LikeButton postId={post.id} initialLikes={post.likesCount || 0} isLiked={post.isLiked} onLikeToggle={(newLikestatus: boolean) => {
+                        setPosts(prev => prev.map(p => p.id === post.id ? { ...p, isLiked: newLikestatus } : p))
+                      }} />
                       <button className="flex items-center gap-2 text-neutral-600 hover:text-emerald-600 transition-colors duration-200">
                         <MessageCircle size={20} />
                         <span>{post.comments?.length || 0}</span>
